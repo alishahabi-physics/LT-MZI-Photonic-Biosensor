@@ -4,6 +4,7 @@ from scipy.signal import find_peaks
 
 from src.calculations.delta_neff import DeltaNeffCalculator
 from src.calculations.transmission import TransmissionCalculator
+from src.config.settings import DEVICE_LENGTH_UM
 from src.io.loader import ModeDataLoader
 
 # ==========================================================
@@ -16,7 +17,7 @@ DATA = PROJECT_ROOT / "data" / "base"
 REFERENCE_FILE = DATA / "reference.mat"
 SENSOR_FILE = DATA / "sensor-liquid-136.mat"
 
-LENGTH = 50.0  # Âµm
+LENGTH = DEVICE_LENGTH_UM
 
 
 # ==========================================================
@@ -91,5 +92,7 @@ print("Previous liquid-135 peak = 1.639072847682 Âµm")
 print()
 
 print("=" * 100)
+
+
 
 
