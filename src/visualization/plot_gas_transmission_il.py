@@ -5,6 +5,7 @@ import numpy as np
 
 from src.calculations.delta_neff import DeltaNeffCalculator
 from src.calculations.transmission import TransmissionCalculator
+from src.config.settings import DEVICE_LENGTH_UM, WAVELENGTH_MAX_UM, WAVELENGTH_MIN_UM
 from src.io.loader import ModeDataLoader
 
 # ==========================================================
@@ -28,7 +29,7 @@ OUTPUT_DIR.mkdir(
 # SETTINGS
 # ==========================================================
 
-LENGTH_UM = 50.0
+LENGTH_UM = DEVICE_LENGTH_UM
 
 
 # ==========================================================
@@ -176,8 +177,8 @@ plt.title(
 )
 
 plt.xlim(
-    1.50,
-    1.65,
+    WAVELENGTH_MIN_UM,
+    WAVELENGTH_MAX_UM,
 )
 
 plt.ylim(
@@ -233,8 +234,8 @@ plt.title(
 )
 
 plt.xlim(
-    1.50,
-    1.65,
+    WAVELENGTH_MIN_UM,
+    WAVELENGTH_MAX_UM,
 )
 
 plt.grid(
@@ -288,4 +289,5 @@ print(f"Transmission:\n{transmission_path}")
 
 print()
 print(f"Insertion Loss:\n{il_path}")
+
 
