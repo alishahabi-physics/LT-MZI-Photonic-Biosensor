@@ -10,7 +10,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA = PROJECT_ROOT / "data" / "base"
 
 
-def plot_group(files, delta_medium, title):
+def plot_group(files, delta_medium, title, zoom=False):
 
     plt.figure(figsize=(10, 6))
 
@@ -36,6 +36,7 @@ def plot_group(files, delta_medium, title):
         )
 
         previous = current
+        previous_file = file
 
     plt.title(title)
 
@@ -45,6 +46,9 @@ def plot_group(files, delta_medium, title):
     plt.grid(True)
 
     plt.legend(fontsize=7)
+
+    if zoom:
+        plt.ylim(0.45, 0.73)
 
     plt.tight_layout()
 
@@ -62,6 +66,16 @@ plot_group(
 )
 
 # ==========================================================
+# Gas Zoom
+# ==========================================================
+
+plot_group(
+    gas_files[1:],
+    delta_medium=GAS_RI_STEP,
+    title="Waveguide Sensitivity (Gas) - Zoom",
+    zoom=True,
+)
+# ==========================================================
 # Liquid
 # ==========================================================
 
@@ -74,6 +88,10 @@ plot_group(
 )
 
 plt.show()
+
+
+
+
 
 
 
