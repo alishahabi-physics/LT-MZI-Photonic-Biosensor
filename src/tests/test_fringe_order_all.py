@@ -13,7 +13,7 @@ from src.io.loader import ModeDataLoader
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA = PROJECT_ROOT / "data" / "base"
 
-L = 50.0  # Âµm
+L = DEVICE_LENGTH_UM
 
 REFERENCE_FILE = DATA / "reference.mat"
 
@@ -85,5 +85,6 @@ print(f"Suggested M_MIN = {int(np.floor(global_min))}")
 print(f"Suggested M_MAX = {int(np.ceil(global_max))}")
 
 print("=" * 80)
+
 
 
