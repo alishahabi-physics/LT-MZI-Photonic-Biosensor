@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 from src.calculations.delta_neff import DeltaNeffCalculator
 from src.calculations.transmission import TransmissionCalculator
+from src.config.settings import DEVICE_LENGTH_UM, WAVELENGTH_MAX_UM, WAVELENGTH_MIN_UM
 from src.io.loader import ModeDataLoader
 
 # ==========================================================
@@ -24,10 +25,7 @@ reference = ModeDataLoader.load(REFERENCE_FILE)
 # ==========================================================
 # Device length (Âµm)
 # ==========================================================
-
-L = 50.0
-
-
+L = DEVICE_LENGTH_UM
 # ==========================================================
 # Plot function
 # ==========================================================
@@ -63,7 +61,7 @@ def plot_group(sensor_files, title):
     plt.xlabel("Wavelength (Âµm)", fontsize=12)
     plt.ylabel("Transmission", fontsize=12)
 
-    plt.xlim(1.50, 1.65)
+    plt.xlim(WAVELENGTH_MIN_UM, WAVELENGTH_MAX_UM)
     plt.ylim(0.0, 1.05)
 
     plt.grid(True)
@@ -103,4 +101,5 @@ plot_group(liquid_files, "LT-MZI Transmission Spectrum (Liquid)")
 # ==========================================================
 
 plt.show()
+
 
