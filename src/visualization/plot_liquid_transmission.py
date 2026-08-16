@@ -5,6 +5,7 @@ import numpy as np
 
 from src.calculations.delta_neff import DeltaNeffCalculator
 from src.calculations.transmission import TransmissionCalculator
+from src.config.settings import DEVICE_LENGTH_UM, WAVELENGTH_MAX_UM, WAVELENGTH_MIN_UM
 from src.io.loader import ModeDataLoader
 
 # ==========================================================
@@ -37,7 +38,7 @@ LIQUID_FILES = [
 # SENSOR LENGTH
 # ==========================================================
 
-LENGTH = 50.0  # Âµm
+LENGTH = DEVICE_LENGTH_UM
 
 
 # ==========================================================
@@ -178,8 +179,8 @@ plt.title(
 # ==========================================================
 
 plt.xlim(
-    1.50,
-    1.65,
+    WAVELENGTH_MIN_UM,
+    WAVELENGTH_MAX_UM,
 )
 
 
@@ -234,4 +235,6 @@ plt.show()
 print("=" * 100)
 print("PLOT FINISHED")
 print("=" * 100)
+
+
 
