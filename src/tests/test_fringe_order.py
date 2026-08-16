@@ -3,6 +3,7 @@
 import numpy as np
 
 from src.calculations.delta_neff import DeltaNeffCalculator
+from src.config.settings import DEVICE_LENGTH_UM
 from src.io.loader import ModeDataLoader
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -54,4 +55,5 @@ print("Last 10 values")
 
 for value in m[-10:]:
     print(value)
+
 
