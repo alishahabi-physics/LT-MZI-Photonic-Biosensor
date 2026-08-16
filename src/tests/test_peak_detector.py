@@ -2,6 +2,7 @@
 
 from src.calculations.delta_neff import DeltaNeffCalculator
 from src.calculations.peak_detector import PeakDetector
+from src.config.settings import DEVICE_LENGTH_UM
 from src.calculations.transmission import TransmissionCalculator
 from src.io.loader import ModeDataLoader
 
@@ -14,7 +15,7 @@ DATA_DIR = PROJECT_ROOT / "data" / "base"
 
 REFERENCE_FILE = DATA_DIR / "reference.mat"
 
-LENGTH = 50.0  # Âµm
+LENGTH = DEVICE_LENGTH_UM
 
 
 # ==========================================================
@@ -247,4 +248,5 @@ print()
 print("=" * 110)
 print("GAS SWEEP FINISHED SUCCESSFULLY")
 print("=" * 110)
+
 
