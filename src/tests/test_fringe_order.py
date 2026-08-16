@@ -9,7 +9,7 @@ from src.io.loader import ModeDataLoader
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA = PROJECT_ROOT / "data" / "base"
 
-L = 50.0  # Âµm
+L = DEVICE_LENGTH_UM
 
 
 reference = ModeDataLoader.load(DATA / "reference.mat")
@@ -55,5 +55,6 @@ print("Last 10 values")
 
 for value in m[-10:]:
     print(value)
+
 
 
