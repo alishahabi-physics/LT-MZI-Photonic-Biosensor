@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from src.calculations.delta_neff import DeltaNeffCalculator
 from src.calculations.insertion_loss import InsertionLossCalculator
 from src.calculations.transmission import TransmissionCalculator
+from src.config.settings import DEVICE_LENGTH_UM, WAVELENGTH_MAX_UM, WAVELENGTH_MIN_UM
 from src.io.loader import ModeDataLoader
 
 # ==========================================================
@@ -63,7 +64,7 @@ def plot_group(files, title):
     plt.xlabel("Wavelength (Âµm)")
     plt.ylabel("Insertion Loss (dB)")
 
-    plt.xlim(1.50, 1.65)
+    plt.xlim(WAVELENGTH_MIN_UM, WAVELENGTH_MAX_UM)
 
     plt.grid(True)
 
@@ -102,4 +103,5 @@ plot_group(liquid_files, "Insertion Loss - Liquid")
 # ==========================================================
 
 plt.show()
+
 
