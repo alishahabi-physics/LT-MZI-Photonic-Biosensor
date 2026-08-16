@@ -243,7 +243,10 @@ class PeakDetector:
         lambda_exact_candidates = []
 
         for m_candidate in m_candidates:
-            lambda_exact = self._solve_lambda_for_m(int(m_candidate))
+            lambda_exact = self._solve_lambda_for_m(
+                int(m_candidate),
+                lambda_find_peaks,
+            )
 
             if lambda_exact is None:
                 continue
@@ -327,6 +330,7 @@ class PeakDetector:
     def _solve_lambda_for_m(
         self,
         m: int,
+        lambda_reference: float,
     ) -> float | None:
         """
         Solve:
@@ -441,7 +445,11 @@ class PeakDetector:
         # ------------------------------------------------------
 
         closest_root_index = int(
-            np.argmin(np.abs(roots - self.wavelength[np.argmax(self.transmission)]))
+            np.argmin(
+                np.abs(
+                    roots - lambda_reference
+                )
+            )
         )
 
         return float(roots[closest_root_index])
