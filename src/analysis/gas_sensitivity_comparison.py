@@ -5,6 +5,7 @@ import numpy as np
 
 from src.calculations.peak_detector import PeakDetector
 from src.calculations.transmission import TransmissionCalculator
+from src.config.settings import DEVICE_LENGTH_UM
 from src.io.loader import ModeDataLoader
 
 # ==========================================================
@@ -18,7 +19,6 @@ REFERENCE_FILE = DATA_DIR / "reference.mat"
 
 OUTPUT_FILE = DATA_DIR / "gas_sensitivity_comparison.csv"
 
-LENGTH_UM = 50.0
 
 # Gas RI step
 DELTA_N_MEDIUM = 0.001
@@ -145,7 +145,7 @@ def main():
         transmission = TransmissionCalculator.calculate(
             wavelength=wavelength,
             delta_neff=delta_neff,
-            length=LENGTH_UM,
+            length=DEVICE_LENGTH_UM,
         )
 
         # --------------------------------------------------
@@ -156,7 +156,7 @@ def main():
             wavelength=wavelength,
             transmission=transmission,
             delta_neff=delta_neff,
-            length=LENGTH_UM,
+            length=DEVICE_LENGTH_UM,
         )
 
         result = detector.detect(previous_lambda=previous_lambda_find)
@@ -397,4 +397,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
