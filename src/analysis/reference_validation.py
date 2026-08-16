@@ -3,6 +3,8 @@ from pathlib import Path
 
 import numpy as np
 
+from src.config.settings import DEVICE_LENGTH_UM, WAVELENGTH_MAX_UM, WAVELENGTH_MIN_UM
+
 # ==========================================================
 # PATHS
 # ==========================================================
@@ -41,10 +43,7 @@ REFERENCE_PAPER = {
 # OUR DESIGN
 # ==========================================================
 
-OUR_LENGTH_UM = 50.0
 
-OUR_WAVELENGTH_MIN_UM = 1.50
-OUR_WAVELENGTH_MAX_UM = 1.65
 
 OUR_STABLE_RI_MIN = 1.002
 OUR_STABLE_RI_MAX = 1.009
@@ -154,9 +153,9 @@ def main():
     # S(50) = 1070 * 50/150
     # ======================================================
 
-    paper_sensitivity_50 = paper_sensitivity * OUR_LENGTH_UM / paper_length
+    paper_sensitivity_50 = paper_sensitivity * DEVICE_LENGTH_UM / paper_length
 
-    paper_fom_50 = paper_fom * OUR_LENGTH_UM / paper_length
+    paper_fom_50 = paper_fom * DEVICE_LENGTH_UM / paper_length
 
     # ======================================================
     # GET OUR STABLE-RANGE RESULT
@@ -256,7 +255,7 @@ def main():
 
     print(f"RI range             : {OUR_STABLE_RI_MIN:.3f} - {OUR_STABLE_RI_MAX:.3f}")
 
-    print(f"L                    : {OUR_LENGTH_UM:.1f} Âµm")
+    print(f"L                    : {DEVICE_LENGTH_UM:.1f} Âµm")
 
     print(f"Sensitivity          : {our_sensitivity:.6f} nm/RIU")
 
@@ -292,7 +291,7 @@ def main():
         "reference_title": REFERENCE_PAPER["title"],
         "paper_wavelength_um": REFERENCE_PAPER["wavelength_um"],
         "paper_length_um": paper_length,
-        "our_length_um": OUR_LENGTH_UM,
+        "our_length_um": DEVICE_LENGTH_UM,
         "paper_sensitivity_nm_per_RIU": paper_sensitivity,
         "paper_fom_RIU_inv": paper_fom,
         "paper_implied_fwhm_nm": paper_fwhm_nm,
@@ -336,4 +335,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
