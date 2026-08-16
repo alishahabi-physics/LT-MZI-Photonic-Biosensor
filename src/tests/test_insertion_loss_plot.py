@@ -17,7 +17,7 @@ DATA = PROJECT_ROOT / "data" / "base"
 
 REFERENCE_FILE = DATA / "reference.mat"
 
-DEVICE_LENGTH = 50.0  # Âµm
+DEVICE_LENGTH = DEVICE_LENGTH_UM
 
 
 # ==========================================================
@@ -103,5 +103,6 @@ plot_group(liquid_files, "Insertion Loss - Liquid")
 # ==========================================================
 
 plt.show()
+
 
 

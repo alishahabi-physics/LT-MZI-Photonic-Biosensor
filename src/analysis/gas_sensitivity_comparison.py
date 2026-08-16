@@ -5,7 +5,7 @@ import numpy as np
 
 from src.calculations.peak_detector import PeakDetector
 from src.calculations.transmission import TransmissionCalculator
-from src.config.settings import DEVICE_LENGTH_UM
+from src.config.settings import DEVICE_LENGTH_UM, GAS_RI_STEP
 from src.io.loader import ModeDataLoader
 
 # ==========================================================
@@ -21,7 +21,7 @@ OUTPUT_FILE = DATA_DIR / "gas_sensitivity_comparison.csv"
 
 
 # Gas RI step
-DELTA_N_MEDIUM = 0.001
+DELTA_N_MEDIUM = GAS_RI_STEP
 
 
 # ==========================================================
@@ -397,5 +397,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
