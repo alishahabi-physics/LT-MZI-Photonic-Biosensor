@@ -5,6 +5,7 @@ from pathlib import Path
 from src.calculations.delta_neff import DeltaNeffCalculator
 from src.calculations.peak_detector import PeakDetector
 from src.calculations.transmission import TransmissionCalculator
+from src.config.settings import DEVICE_LENGTH_UM
 from src.io.loader import ModeDataLoader
 
 # ==========================================================
@@ -42,7 +43,6 @@ REFERENCE_FILE = DATA_DIR / "reference.mat"
 
 OUTPUT_FILE = DATA_DIR / "gas_peak_results.csv"
 
-LENGTH_UM = 50.0
 
 
 # ==========================================================
@@ -94,14 +94,14 @@ def calculate_gas_peak_results():
         transmission = TransmissionCalculator.calculate(
             wavelength=wavelength,
             delta_neff=delta_neff,
-            length=LENGTH_UM,
+            length=DEVICE_LENGTH_UM,
         )
 
         detector = PeakDetector(
             wavelength=wavelength,
             transmission=transmission,
             delta_neff=delta_neff,
-            length=LENGTH_UM,
+            length=DEVICE_LENGTH_UM,
         )
 
         result = detector.detect(previous_lambda=previous_lambda)
@@ -189,4 +189,5 @@ if __name__ == "__main__":
 
     print()
     print(f"Saved to:\n{OUTPUT_FILE}")
+
 
