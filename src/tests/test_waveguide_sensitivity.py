@@ -2,6 +2,7 @@
 
 import matplotlib.pyplot as plt
 
+from src.config.settings import GAS_RI_STEP
 from src.calculations.waveguide_sensitivity import WaveguideSensitivityCalculator
 from src.io.loader import ModeDataLoader
 
@@ -56,7 +57,7 @@ gas_files = sorted(DATA.glob("sensor-gas-*.mat"))
 
 plot_group(
     gas_files,
-    delta_medium=0.001,
+    delta_medium=GAS_RI_STEP,
     title="Waveguide Sensitivity (Gas)",
 )
 
@@ -73,5 +74,7 @@ plot_group(
 )
 
 plt.show()
+
+
 
 
