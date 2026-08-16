@@ -3,6 +3,7 @@
 import numpy as np
 
 from src.calculations.delta_neff import DeltaNeffCalculator
+from src.config.settings import DEVICE_LENGTH_UM
 from src.io.loader import ModeDataLoader
 
 # ==========================================================
@@ -84,4 +85,5 @@ print(f"Suggested M_MIN = {int(np.floor(global_min))}")
 print(f"Suggested M_MAX = {int(np.ceil(global_max))}")
 
 print("=" * 80)
+
 
