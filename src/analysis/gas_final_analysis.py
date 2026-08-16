@@ -1,4 +1,4 @@
-﻿import csv
+import csv
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -267,6 +267,16 @@ def calculate_results():
         dtype=float,
     ).ravel()
 
+    wavelength_ng = np.asarray(
+        reference.wavelength_ng,
+        dtype=float,
+    ).ravel()
+
+    reference_ng = np.asarray(
+        reference.ng,
+        dtype=float,
+    ).ravel()
+
     if not GAS_FILES:
         raise RuntimeError(
             "No gas sensor files were found."
@@ -290,15 +300,50 @@ def calculate_results():
             dtype=float,
         ).ravel()
 
+        sensor_wavelength_ng = np.asarray(
+            sensor.wavelength_ng,
+            dtype=float,
+        ).ravel()
+
+        sensor_ng = np.asarray(
+            sensor.ng,
+            dtype=float,
+        ).ravel()
+
         if sensor_neff.shape != wavelength.shape:
             raise ValueError(
                 f"Shape mismatch in "
                 f"{sensor_file.name}"
             )
 
+        if (
+            reference_ng.shape != wavelength_ng.shape
+            or sensor_ng.shape != sensor_wavelength_ng.shape
+        ):
+            raise ValueError(
+                f"Invalid ng data shape in "
+                f"{sensor_file.name}"
+            )
+
+        if not np.allclose(
+            wavelength_ng,
+            sensor_wavelength_ng,
+            rtol=0.0,
+            atol=1e-12,
+        ):
+            raise ValueError(
+                f"ng wavelength grids do not match in "
+                f"{sensor_file.name}"
+            )
+
         delta_neff = (
             reference_neff
             - sensor_neff
+        )
+
+        delta_ng = (
+            reference_ng
+            - sensor_ng
         )
 
         transmission = (
@@ -331,6 +376,12 @@ def calculate_results():
         delta_neff_res = interpolate_value(
             wavelength,
             delta_neff,
+            lambda_exact,
+        )
+
+        delta_ng_res = interpolate_value(
+            wavelength_ng,
+            delta_ng,
             lambda_exact,
         )
 
@@ -394,13 +445,14 @@ def calculate_results():
             )
 
             sensitivity_formula_current = (
-                lambda_exact
-                / delta_neff_res
+                -lambda_exact
+                / delta_ng_res
                 * waveguide_sensitivity
+                * 1000.0
             )
 
             fom = (
-                abs(sensitivity_shift)
+                abs(sensitivity_formula_current)
                 / fwhm_nm
             )
 
@@ -419,6 +471,9 @@ def calculate_results():
                 ),
                 "delta_neff": (
                     delta_neff_res
+                ),
+                "delta_ng": (
+                    delta_ng_res
                 ),
                 "waveguide_sensitivity": (
                     waveguide_sensitivity
@@ -448,6 +503,38 @@ def calculate_results():
         )
         previous_lambda_find = (
             peak.lambda_find_peaks
+        )
+
+    # ----------------------------------------------------------
+    # Central finite-difference sensitivity
+    #
+    # Uses:
+    #   S_i = (lambda_{i+1} - lambda_{i-1})
+    #         / (RI_{i+1} - RI_{i-1})
+    #
+    # Not available at the two boundaries.
+    # ----------------------------------------------------------
+
+    for i, row in enumerate(results):
+
+        if i == 0 or i == len(results) - 1:
+            row["sensitivity_central_nm_per_riu"] = np.nan
+            continue
+
+        delta_lambda = (
+            results[i + 1]["lambda_exact_um"]
+            - results[i - 1]["lambda_exact_um"]
+        )
+
+        delta_ri = (
+            results[i + 1]["ri"]
+            - results[i - 1]["ri"]
+        )
+
+        row["sensitivity_central_nm_per_riu"] = (
+            delta_lambda
+            / delta_ri
+            * 1000.0
         )
 
     return results
