@@ -3,6 +3,8 @@ from pathlib import Path
 
 import numpy as np
 
+from src.config.settings import DEVICE_LENGTH_UM
+
 # ==========================================================
 # PATHS
 # ==========================================================
@@ -19,7 +21,6 @@ OUTPUT_FILE = DATA_DIR / "gas_fsr_results.csv"
 # SETTINGS
 # ==========================================================
 
-LENGTH_UM = 50.0
 
 
 # ==========================================================
@@ -105,7 +106,7 @@ def main():
         fsr_um = calculate_fsr(
             lambda_res_um=lambda_res,
             delta_neff=delta_neff,
-            length_um=LENGTH_UM,
+            length_um=DEVICE_LENGTH_UM,
         )
 
         results.append(
@@ -207,4 +208,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
