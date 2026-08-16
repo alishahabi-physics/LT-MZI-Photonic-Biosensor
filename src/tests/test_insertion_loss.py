@@ -2,6 +2,7 @@
 
 from src.calculations.delta_neff import DeltaNeffCalculator
 from src.calculations.insertion_loss import InsertionLossCalculator
+from src.config.settings import DEVICE_LENGTH_UM
 from src.calculations.transmission import TransmissionCalculator
 from src.io.loader import ModeDataLoader
 
@@ -20,7 +21,7 @@ delta_neff = DeltaNeffCalculator.calculate(
 transmission = TransmissionCalculator.calculate(
     wavelength=reference.wavelength_neff,
     delta_neff=delta_neff,
-    length=50.0,
+    length=DEVICE_LENGTH_UM,
 )
 
 insertion_loss = InsertionLossCalculator.calculate(
@@ -46,4 +47,5 @@ print("First 10 values:")
 
 for value in insertion_loss[:10]:
     print(value)
+
 
