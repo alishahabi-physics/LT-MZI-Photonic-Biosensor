@@ -86,14 +86,6 @@ plot_group(gas_files, "LT-MZI Transmission Spectrum (Gas)")
 
 
 # ==========================================================
-# Liquid files
-# ==========================================================
-
-liquid_files = sorted(DATA.glob("sensor-liquid-*.mat"))
-
-print(f"Liquid files : {len(liquid_files)}")
-
-plot_group(liquid_files, "LT-MZI Transmission Spectrum (Liquid)")
 
 
 # ==========================================================
@@ -101,5 +93,6 @@ plot_group(liquid_files, "LT-MZI Transmission Spectrum (Liquid)")
 # ==========================================================
 
 plt.show()
+
 
 

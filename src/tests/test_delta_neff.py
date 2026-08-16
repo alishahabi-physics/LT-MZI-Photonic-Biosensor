@@ -8,8 +8,6 @@ DATA = PROJECT_ROOT / "data" / "base"
 
 reference = ModeDataLoader.load(DATA / "reference.mat")
 
-sensor = ModeDataLoader.load(DATA / "sensor-liquid-133.mat")
-
 delta_neff = DeltaNeffCalculator.calculate(
     reference,
     sensor,
@@ -34,4 +32,5 @@ print()
 
 print("Minimum :", delta_neff.min())
 print("Maximum :", delta_neff.max())
+
 

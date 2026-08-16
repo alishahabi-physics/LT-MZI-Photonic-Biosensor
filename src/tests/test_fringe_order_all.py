@@ -20,8 +20,6 @@ REFERENCE_FILE = DATA / "reference.mat"
 TEST_FILES = [
     DATA / "sensor-gas-1000.mat",
     DATA / "sensor-gas-1009.mat",
-    DATA / "sensor-liquid-133.mat",
-    DATA / "sensor-liquid-140.mat",
 ]
 
 
@@ -85,6 +83,7 @@ print(f"Suggested M_MIN = {int(np.floor(global_min))}")
 print(f"Suggested M_MAX = {int(np.ceil(global_max))}")
 
 print("=" * 80)
+
 
 
 

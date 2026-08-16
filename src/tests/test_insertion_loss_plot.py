@@ -88,14 +88,6 @@ plot_group(gas_files, "Insertion Loss - Gas")
 
 
 # ==========================================================
-# Liquid
-# ==========================================================
-
-liquid_files = sorted(DATA.glob("sensor-liquid-*.mat"))
-
-print(f"Liquid files : {len(liquid_files)}")
-
-plot_group(liquid_files, "Insertion Loss - Liquid")
 
 
 # ==========================================================
@@ -103,6 +95,7 @@ plot_group(liquid_files, "Insertion Loss - Liquid")
 # ==========================================================
 
 plt.show()
+
 
 
 
