@@ -48,12 +48,73 @@ def interpolate_value(
     )
 
 
+
 def calculate_fwhm(
     wavelength,
     delta_neff,
     lambda_res,
 ):
+    """
+    Calculate FWHM without extrapolation.
+
+    The half-maximum crossings must both exist inside the
+    actual wavelength domain of the simulation data.
+
+    Returns
+    -------
+    float
+        FWHM in nm.
+
+    numpy.nan
+        If either half-maximum crossing is outside the
+        available wavelength domain.
+    """
+
+    wavelength = np.asarray(
+        wavelength,
+        dtype=float,
+    ).ravel()
+
+    delta_neff = np.asarray(
+        delta_neff,
+        dtype=float,
+    ).ravel()
+
+    if wavelength.size != delta_neff.size:
+        raise ValueError(
+            "wavelength and delta_neff must have the same length."
+        )
+
+    if wavelength.size < 3:
+        raise ValueError(
+            "At least 3 wavelength points are required."
+        )
+
+    if not np.all(
+        np.diff(wavelength) > 0
+    ):
+        raise ValueError(
+            "wavelength must be strictly increasing."
+        )
+
+    lambda_min = float(wavelength[0])
+    lambda_max = float(wavelength[-1])
+
+    if not (
+        lambda_min <= lambda_res <= lambda_max
+    ):
+        return np.nan
+
     def transmission_at(lam):
+        if (
+            lam < lambda_min
+            or lam > lambda_max
+        ):
+            raise ValueError(
+                "FWHM evaluation requested outside "
+                "the available wavelength domain."
+            )
+
         dn = np.interp(
             lam,
             wavelength,
@@ -64,53 +125,65 @@ def calculate_fwhm(
             (2.0 * np.pi * dn * DEVICE_LENGTH_UM) / lam
         ) ** 2
 
-    peak = transmission_at(lambda_res)
+    peak = transmission_at(
+        lambda_res
+    )
+
     half = peak / 2.0
 
-    span = 0.04
+    # --------------------------------------------------------
+    # IMPORTANT:
+    # Search only inside the actual wavelength domain.
+    # There is NO extrapolation beyond the measured/simulated
+    # wavelength range.
+    # --------------------------------------------------------
 
     left_grid = np.linspace(
-        lambda_res - span,
+        lambda_min,
         lambda_res,
-        2000,
+        4000,
     )
 
     right_grid = np.linspace(
         lambda_res,
-        lambda_res + span,
-        2000,
+        lambda_max,
+        4000,
     )
 
     left_values = np.array(
         [
             transmission_at(x) - half
             for x in left_grid
-        ]
+        ],
+        dtype=float,
     )
 
     right_values = np.array(
         [
             transmission_at(x) - half
             for x in right_grid
-        ]
+        ],
+        dtype=float,
     )
 
     left_crossings = np.where(
-        left_values[:-1] * left_values[1:] <= 0
+        left_values[:-1] * left_values[1:] <= 0.0
     )[0]
 
     right_crossings = np.where(
-        right_values[:-1] * right_values[1:] <= 0
+        right_values[:-1] * right_values[1:] <= 0.0
     )[0]
+
+    # --------------------------------------------------------
+    # If either side has no crossing inside the actual domain,
+    # FWHM is undefined for this wavelength window.
+    # --------------------------------------------------------
 
     if (
         len(left_crossings) == 0
         or len(right_crossings) == 0
     ):
-        raise RuntimeError(
-            f"FWHM could not be determined at "
-            f"{lambda_res:.9f} um."
-        )
+        return np.nan
 
     li = left_crossings[-1]
     ri = right_crossings[0]
@@ -369,9 +442,43 @@ def calculate_results():
             sensor_file
         )
 
-        lambda_exact = (
-            peak.lambda_exact
-        )
+        # ------------------------------------------------------
+        # Fixed fringe-order tracking
+        #
+        # The first sensor establishes the target fringe order.
+        # Every subsequent RI is solved on the SAME m.
+        #
+        # This prevents a newly appearing neighbouring fringe
+        # from changing the physical resonance being tracked.
+        # ------------------------------------------------------
+
+        if previous_lambda_exact is None:
+
+            target_m = peak.m
+
+            lambda_exact = (
+                peak.lambda_exact
+            )
+
+        else:
+
+            lambda_exact = solve_lambda_for_m(
+                wavelength=wavelength,
+                delta_neff=delta_neff,
+                m_target=target_m,
+                lambda_reference=previous_lambda_exact,
+            )
+
+            if lambda_exact is None:
+                raise RuntimeError(
+                    f"Tracked fringe m={target_m} "
+                    f"has no solution inside the available "
+                    f"wavelength range for {sensor_file.name}."
+                )
+
+            peak.m = target_m
+            peak.m_center = target_m
+            peak.lambda_exact = lambda_exact
 
         delta_neff_res = interpolate_value(
             wavelength,
@@ -451,10 +558,26 @@ def calculate_results():
                 * 1000.0
             )
 
-            fom = (
-                abs(sensitivity_formula_current)
-                / fwhm_nm
-            )
+            if (
+                np.isfinite(
+                    sensitivity_formula_current
+                )
+                and np.isfinite(
+                    fwhm_nm
+                )
+                and fwhm_nm > 0.0
+            ):
+
+                fom = (
+                    abs(
+                        sensitivity_formula_current
+                    )
+                    / fwhm_nm
+                )
+
+            else:
+
+                fom = np.nan
 
         results.append(
             {
@@ -628,6 +751,17 @@ def print_summary(results):
         )
     ]
 
+    fwhm_valid = [
+        row
+        for row in stable
+        if (
+            np.isfinite(
+                row["fwhm_nm"]
+            )
+            and row["fwhm_nm"] > 0.0
+        )
+    ]
+
     ri = np.array(
         [row["ri"] for row in stable],
         dtype=float,
@@ -648,17 +782,24 @@ def print_summary(results):
             wavelength,
         )
 
-        mean_fwhm = np.mean(
-            [
-                row["fwhm_nm"]
-                for row in stable
-            ]
-        )
+        if fwhm_valid:
 
-        linear_fom = (
-            abs(fit.slope * 1000.0)
-            / mean_fwhm
-        )
+            mean_fwhm = np.mean(
+                [
+                    row["fwhm_nm"]
+                    for row in fwhm_valid
+                ]
+            )
+
+            linear_fom = (
+                abs(fit.slope * 1000.0)
+                / mean_fwhm
+            )
+
+        else:
+
+            mean_fwhm = np.nan
+            linear_fom = np.nan
 
         print(
             f"Stable range: "
@@ -675,15 +816,34 @@ def print_summary(results):
             f"{fit.rvalue ** 2:.8f}"
         )
 
-        print(
-            f"Mean FWHM          : "
-            f"{mean_fwhm:.4f} nm"
-        )
+        if np.isfinite(mean_fwhm):
 
-        print(
-            f"Linear-fit FOM     : "
-            f"{linear_fom:.4f} RIU^-1"
-        )
+            print(
+                f"Mean FWHM          : "
+                f"{mean_fwhm:.4f} nm"
+            )
+
+            print(
+                f"FWHM-valid points  : "
+                f"{len(fwhm_valid)}"
+            )
+
+            print(
+                f"Linear-fit FOM     : "
+                f"{linear_fom:.4f} RIU^-1"
+            )
+
+        else:
+
+            print(
+                "Mean FWHM          : N/A "
+                "(insufficient wavelength range)"
+            )
+
+            print(
+                "Linear-fit FOM     : N/A "
+                "(insufficient wavelength range)"
+            )
 
     print()
     print(

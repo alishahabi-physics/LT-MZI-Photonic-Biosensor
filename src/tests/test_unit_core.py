@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 
 import numpy as np
 
@@ -123,8 +123,42 @@ def test_gas_analysis_result_count():
 
     assert len(stable) == 8
 
+    # The resonance and sensitivity remain valid across
+    # RI = 1.002 ... 1.009.
     for row in stable:
         assert np.isfinite(
             row["sensitivity_formula_nm_per_riu"]
         )
-        assert np.isfinite(row["fom_riu_inv"])
+
+    # With the current 1500-1600 nm wavelength window,
+    # FWHM is fully observable only for RI=1.002 ... 1.005.
+    fwhm_valid = [
+        row
+        for row in stable
+        if np.isfinite(row["fwhm_nm"])
+    ]
+
+    assert len(fwhm_valid) == 4
+
+    assert [
+        row["ri"]
+        for row in fwhm_valid
+    ] == [
+        1.002,
+        1.003,
+        1.004,
+        1.005,
+    ]
+
+    # FOM is valid exactly when FWHM is valid.
+    for row in stable:
+
+        if np.isfinite(row["fwhm_nm"]):
+            assert np.isfinite(
+                row["fom_riu_inv"]
+            )
+
+        else:
+            assert np.isnan(
+                row["fom_riu_inv"]
+            )
