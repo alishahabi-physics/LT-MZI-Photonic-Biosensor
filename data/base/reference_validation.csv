@@ -1,2 +1,0 @@
-reference_title,paper_reference_length_um,our_length_um,paper_sensitivity_nm_per_RIU,paper_fom_RIU_inv,our_ri_min,our_ri_max,our_sensitivity_nm_per_RIU,our_mean_fwhm_nm,our_linear_fom_RIU_inv,our_mean_local_fom_RIU_inv,our_r2,direct_sensitivity_ratio,direct_fom_ratio,length_scaling_applied
-Compact Gas Sensor Using Silicon-on-Insulator Loop-Terminated Mach-Zehnder Interferometer,150.0,50.0,1070.0,280.8,1.002,1.009,3221.1254676427616,43.165973374214104,74.62186569310524,73.7724820596588,0.9994513724632728,3.0103976333109923,0.26574738494695593,False

@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 
 import numpy as np
 from scipy.io import loadmat
@@ -8,34 +8,106 @@ from src.models.mode_data import ModeData
 
 class ModeDataLoader:
     """
-    Loads a Lumerical MODE .mat file.
+    Loads consolidated MATLAB MAT files.
+
+    Expected variables:
+
+        wavelength_neff
+        neff
+
+        wavelength_ng
+        ng
+
+        wavelength_dispersion
+        dispersion
+
+    The three wavelength axes are independent.
+    No interpolation or resampling is performed.
     """
 
     @staticmethod
-    def load(file_path: str | Path) -> ModeData:
+    def load(path: str | Path) -> ModeData:
+        path = Path(path)
 
-        file_path = Path(file_path)
+        if not path.exists():
+            raise FileNotFoundError(f"MAT file not found: {path}")
 
-        if not file_path.exists():
-            raise FileNotFoundError(file_path)
+        data = loadmat(
+            path,
+            squeeze_me=True,
+            struct_as_record=False,
+        )
 
-        data = loadmat(file_path)
+        required = (
+            "wavelength_neff",
+            "neff",
+            "wavelength_ng",
+            "ng",
+            "wavelength_dispersion",
+            "dispersion",
+        )
 
-        neff_struct = data["neff"][0, 0]
-        ng_struct = data["ng"][0, 0]
-        dispersion_struct = data["dispersion"][0, 0]
+        missing = [
+            name
+            for name in required
+            if name not in data
+        ]
 
-        wavelength_neff = np.asarray(neff_struct["wavelength"]).squeeze()
+        if missing:
+            raise KeyError(
+                f"Missing variables in {path.name}: {missing}"
+            )
 
-        neff = np.asarray(neff_struct["neff"]).squeeze()
+        wavelength_neff = ModeDataLoader._read_array(
+            data["wavelength_neff"],
+            "wavelength_neff",
+        )
 
-        wavelength_ng = np.asarray(ng_struct["wavelength"]).squeeze()
+        neff = ModeDataLoader._read_array(
+            data["neff"],
+            "neff",
+        )
 
-        ng = np.asarray(ng_struct["ng"]).squeeze()
+        wavelength_ng = ModeDataLoader._read_array(
+            data["wavelength_ng"],
+            "wavelength_ng",
+        )
 
-        wavelength_dispersion = np.asarray(dispersion_struct["wavelength"]).squeeze()
+        ng = ModeDataLoader._read_array(
+            data["ng"],
+            "ng",
+        )
 
-        dispersion = np.asarray(dispersion_struct["dispersion"]).squeeze()
+        wavelength_dispersion = ModeDataLoader._read_array(
+            data["wavelength_dispersion"],
+            "wavelength_dispersion",
+        )
+
+        dispersion = ModeDataLoader._read_array(
+            data["dispersion"],
+            "dispersion",
+        )
+
+        ModeDataLoader._validate_pair(
+            wavelength_neff,
+            neff,
+            "wavelength_neff",
+            "neff",
+        )
+
+        ModeDataLoader._validate_pair(
+            wavelength_ng,
+            ng,
+            "wavelength_ng",
+            "ng",
+        )
+
+        ModeDataLoader._validate_pair(
+            wavelength_dispersion,
+            dispersion,
+            "wavelength_dispersion",
+            "dispersion",
+        )
 
         return ModeData(
             wavelength_neff=wavelength_neff,
@@ -45,3 +117,42 @@ class ModeDataLoader:
             wavelength_dispersion=wavelength_dispersion,
             dispersion=dispersion,
         )
+
+    @staticmethod
+    def _read_array(
+        value: np.ndarray,
+        name: str,
+    ) -> np.ndarray:
+
+        array = np.asarray(value)
+        array = np.squeeze(array)
+
+        if array.ndim != 1:
+            raise ValueError(
+                f"{name} must be 1-D, "
+                f"got shape {array.shape}"
+            )
+
+        array = array.astype(np.float64)
+
+        if not np.all(np.isfinite(array)):
+            raise ValueError(
+                f"{name} contains non-finite values"
+            )
+
+        return array
+
+    @staticmethod
+    def _validate_pair(
+        wavelength: np.ndarray,
+        data: np.ndarray,
+        wavelength_name: str,
+        data_name: str,
+    ) -> None:
+
+        if len(wavelength) != len(data):
+            raise ValueError(
+                f"Length mismatch: "
+                f"{wavelength_name}={len(wavelength)}, "
+                f"{data_name}={len(data)}"
+            )
